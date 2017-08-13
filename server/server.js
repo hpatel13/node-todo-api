@@ -1,9 +1,10 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
+const _ = require('lodash');
 
-var {mongoose} = require('./db/mongoose');
-var {Todo} = require('./models/todo');
-var {User} = require('./models/user');
+const {mongoose} = require('./db/mongoose');
+const {Todo} = require('./models/todo');
+const {User} = require('./models/user');
 const {ObjectID} = require('mongodb');
 
 var app = express();
@@ -62,6 +63,30 @@ app.delete('/todos/:id',(req,res)=>{
         res.status(400).send("");
     })
 });
+
+app.patch('/todos/:id',(req,res)=>{
+    var id = req.params.id;
+    // we want user to update only 2 field in db which can be done by following
+    var body = _.pick(req.body,['text','completed']);
+
+    if(!ObjectID.isValid(id))
+        return res.status(404).send("Invalid ID");
+
+    if(_.isBoolean(body.completed) && body.completed){
+        body.completedAt = new Date().getTime();
+    } else{
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    //refer mongoose-update
+    Todo.findByIdAndUpdate(id, {$set:body},{new:true}).then((todo)=>{
+        if(!todo)
+            return res.status(404).send("Invalid ID");
+
+        res.send({todo})
+    }).catch((e)=> res.status(400).send())
+})
 
 app.listen(port,()=>{
     console.log("started server on port ",port);
