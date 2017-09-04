@@ -3,11 +3,13 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const _ = require('lodash');
-
-const {mongoose} = require('./db/mongoose');
-const {Todo} = require('./models/todo');
-const {User} = require('./models/user');
 const {ObjectID} = require('mongodb');
+
+var {mongoose} = require('./db/mongoose');
+var {Todo} = require('./models/todo');
+var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate')
+
 
 var app = express();
 
@@ -90,6 +92,7 @@ app.patch('/todos/:id',(req,res)=>{
     }).catch((e)=> res.status(400).send())
 })
 
+
 //signing up a new user.
 app.post('/users',(req,res)=>{
     var body = _.pick(req.body,['email','password'])
@@ -110,6 +113,22 @@ app.post('/users',(req,res)=>{
      });
 });
 
+
+//private route
+app.get('/users/me',authenticate,function(req,res){
+    // var token = req.header('x-auth');
+    // console.log(token);
+    // User.findByToken(token).then((user)=>{
+    //     if(!user){
+    //         return Promise.reject();
+    //     }
+    //     console.log('user is : ',user)
+    //     res.send(user);
+    // }).catch((e)=>{
+    //     res.status(401).send();
+    // });
+    res.send(req.user);
+})
 app.listen(port,()=>{
     console.log("started server on port ",port);
 });
