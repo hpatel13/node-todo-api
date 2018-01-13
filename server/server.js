@@ -10,6 +10,8 @@ var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
 var {authenticate} = require('./middleware/authenticate');
 
+//for Heroku u can set scret key JWT_SCERET of config.json by running following command in cmd
+//heroku config:set JWT_SECRET=abc123
 
 var app = express();
 
