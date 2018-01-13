@@ -83,7 +83,6 @@ UserSchema.statics.findByToken = function(token){
         // })
         return Promise.reject();
     }
-    console.log("decoded: ",decoded)
     return User.findOne({
         '_id':decoded._id,
         'tokens.token':token,
